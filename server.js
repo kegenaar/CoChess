@@ -34,10 +34,10 @@ io.on('connection', (socket) => {
             console.log(`Game started in room ${room}`);
             waitingPlayer = null;
         } else {
-            // Wait for opponent
+            // Wait for ally
             waitingPlayer = socket;
             socket.emit('waiting_for_opponent');
-            console.log(`User ${socket.id} is waiting for an opponent`);
+            console.log(`User ${socket.id} is waiting for an ally`);
         }
     });
 
@@ -58,8 +58,8 @@ io.on('connection', (socket) => {
         if (waitingPlayer === socket) {
             waitingPlayer = null;
         }
-        // Ideally, we should notify the opponent in the room that the player left
-        // For simplicity, we'll leave it as is for now, or maybe emit 'opponent_disconnected'
+        // Ideally, we should notify the ally in the room that the player left
+        // For simplicity, we'll leave it as is for now, or maybe emit 'ally_disconnected'
     });
 });
 

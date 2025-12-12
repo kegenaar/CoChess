@@ -39,7 +39,7 @@ body {
     align-items: center;
     gap: 20px;
     width: 100%;
-    max-width: 1200px;
+    max-width: 800px;
 }
 
 header {
@@ -100,8 +100,6 @@ h1 {
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    overflow-x: auto;
-    /* Handle very small screens */
     max-width: 100%;
     position: relative;
 }
@@ -116,12 +114,11 @@ h1 {
 
 .board {
     display: grid;
-    grid-template-columns: repeat(16, 1fr);
-    grid-template-rows: repeat(8, minmax(0, 1fr));
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
     width: 100%;
-    min-width: 800px;
-    /* Ensure pieces don't get too squished */
-    aspect-ratio: 16 / 8;
+    max-width: 600px;
+    aspect-ratio: 1 / 1;
     border: 2px solid var(--board-border);
 }
 
@@ -130,202 +127,6 @@ h1 {
     justify-content: center;
     align-items: center;
     font-size: 2.5rem;
-    /* Adjust based on square size */
-    cursor: pointer;
-    position: relative;
-    user-select: none;
-    transition: background-color 0.2s;
-    overflow: hidden;
-}
-
-/* Chess Board Pattern */
-.square.light {
-    background-color: var(--square-light);
-    color: #1e293b;
-}
-
-.square.dark {
-    background-color: var(--square-dark);
-    color: #94a3b8;
-}
-
-/* Highlights */
-.square.selected {
-    box-shadow: inset 0 0 0 4px var(--selected-color);
-}
-
-.square.valid-move::after {
-    content: '';
-    position: absolute;
-    width: 20%;
-    height: 20%;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 50%;
-}
-
-.square.valid-capture {
-    box-shadow: inset 0 0 0 4px var(--highlight-capture);
-}
-
-.square.last-move {
-    background-color: rgba(255, 255, 0, 0.2) !important;
-}
-
-/* Pieces */
-.piece {
-    z-index: 2;
-    transition: transform 0.2s;
-    line-height: 1;
-    cursor: grab;
-}
-
-.piece:active {
-    cursor: grabbing;
-}
-
-.piece[data-faction="A"] {
-    color: #1d4ed8;
-    text-shadow: 0 0 2px white;
-}
-
-/* Darker blue for contrast on light squares */
-.piece[data-faction="B"] {
-    color: #15803d;
-    text-shadow: 0 0 2px white;
-}
-
-/* Darker green */
-.piece[data-faction="Enemy"] {
-    color: #b91c1c;
-    text-shadow: 0 0 2px white;
-}
-
-/* Darker red */
-
-/* Adjust text colors for dark squares to ensure visibility */
-.square.dark .piece[data-faction="A"] {
-    color: var(--color-player-a);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.square.dark .piece[data-faction="B"] {
-    color: var(--color-player-b);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.square.dark .piece[data-faction="Enemy"] {
-    color: var(--color-enemy);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.controls {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-}
-
-.legend {
-    display: flex;
-    gap: 20px;
-    font-size: 0.9rem;
-    color: #94a3b8;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.dot.player-a {
-    background-color: var(--color-player-a);
-}
-
-.dot.player-b {
-    background-color: var(--color-player-b);
-}
-
-.dot.enemy {
-    background-color: var(--color-enemy);
-}
-
-.btn {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-
-.badge.player-a {
-    background-color: var(--color-player-a);
-    color: #0f172a;
-}
-
-.badge.player-b {
-    background-color: var(--color-player-b);
-    color: #0f172a;
-}
-
-.badge.enemy {
-    background-color: var(--color-enemy);
-    color: #0f172a;
-}
-
-#message-log {
-    color: #cbd5e1;
-    font-style: italic;
-}
-
-.board-wrapper {
-    background: var(--board-border);
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    overflow-x: auto;
-    /* Handle very small screens */
-    max-width: 100%;
-    position: relative;
-}
-
-#arrow-canvas {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    pointer-events: none;
-    z-index: 10;
-}
-
-.board {
-    display: grid;
-    grid-template-columns: repeat(16, 1fr);
-    grid-template-rows: repeat(8, minmax(0, 1fr));
-    width: 100%;
-    min-width: 800px;
-    /* Ensure pieces don't get too squished */
-    aspect-ratio: 16 / 8;
-    border: 2px solid var(--board-border);
-}
-
-.square {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5rem;
-    /* Adjust based on square size */
     cursor: pointer;
     position: relative;
     user-select: none;

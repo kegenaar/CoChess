@@ -1,5 +1,5 @@
 const ROWS = 8;
-const COLS = 16;
+const COLS = 8;
 
 const PIECES = {
     KING: '♚',
@@ -36,7 +36,7 @@ class Piece {
 
 class Game {
     constructor() {
-        this.board = []; // 8x16
+        this.board = []; // 8x8
         this.turnIndex = 0; // 0: A, 1: Enemy, 2: B, 3: Enemy
         this.selectedSquare = null;
         this.legalMoves = [];
@@ -196,31 +196,29 @@ class Game {
     }
 
     setupPieces() {
-        // Helper to place a set of pieces
-        const placeSet = (row, pawnRow, faction, colOffset) => {
-            const backRow = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
+        // Enemy (Top) - Full 16 pieces on rows 0-1
+        const enemyBackRow = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
+        enemyBackRow.forEach((type, i) => {
+            this.board[0][i] = new Piece(type, FACTIONS.ENEMY);
+        });
+        for (let i = 0; i < 8; i++) {
+            this.board[1][i] = new Piece('p', FACTIONS.ENEMY);
+        }
 
-            // Place Back Row
-            backRow.forEach((type, i) => {
-                this.board[row][colOffset + i] = new Piece(type, faction);
-            });
+        // Player Side (Bottom) - Split between A and B
+        const playerBackRow = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
 
-            // Place Pawns
-            for (let i = 0; i < 8; i++) {
-                this.board[pawnRow][colOffset + i] = new Piece('p', faction);
-            }
-        };
+        // Player B controls Queenside (columns 0-3: a-d)
+        for (let i = 0; i < 4; i++) {
+            this.board[7][i] = new Piece(playerBackRow[i], FACTIONS.B);
+            this.board[6][i] = new Piece('p', FACTIONS.B);
+        }
 
-        // Player A (Bottom Left)
-        placeSet(7, 6, FACTIONS.A, 0);
-
-        // Player B (Bottom Right)
-        placeSet(7, 6, FACTIONS.B, 8);
-
-        // Enemy (Top Left & Right) - Mirroring the setup
-        // Note: Enemy is at top (Row 0, 1). Pawns at 1.
-        placeSet(0, 1, FACTIONS.ENEMY, 0);
-        placeSet(0, 1, FACTIONS.ENEMY, 8);
+        // Player A controls Kingside (columns 4-7: e-h)
+        for (let i = 4; i < 8; i++) {
+            this.board[7][i] = new Piece(playerBackRow[i], FACTIONS.A);
+            this.board[6][i] = new Piece('p', FACTIONS.A);
+        }
     }
 
     render() {
@@ -431,40 +429,52 @@ class Game {
             // Castling Logic
             if (piece.type === 'k' && !piece.hasMoved && !ignoreCastling) {
                 const inCheck = this.isKingInCheck(piece.faction);
-                // console.log(`Castling Check: ${piece.faction} King in check? ${inCheck}`);
 
                 if (!inCheck) {
-                    // Check Kingside (Right)
-                    const rightRook = this.board[r][c + 3];
-                    if (rightRook && rightRook.type === 'r' && !rightRook.hasMoved) {
-                        const empty1 = !this.board[r][c + 1];
-                        const empty2 = !this.board[r][c + 2];
-                        // console.log(`Kingside Path Empty? ${empty1} ${empty2}`);
+                    // Kingside (Right) - Rook at column 7
+                    if (c + 3 < COLS) {
+                        const rightRook = this.board[r][7];
+                        if (rightRook && rightRook.type === 'r' && rightRook.faction === piece.faction && !rightRook.hasMoved) {
+                            // Check path between king and rook
+                            let pathClear = true;
+                            for (let col = c + 1; col < 7; col++) {
+                                if (this.board[r][col]) {
+                                    pathClear = false;
+                                    break;
+                                }
+                            }
 
-                        if (empty1 && empty2) {
-                            const atk1 = this.isSquareAttacked(r, c + 1, piece.faction);
-                            const atk2 = this.isSquareAttacked(r, c + 2, piece.faction);
-                            // console.log(`Kingside Path Attacked? ${atk1} ${atk2}`);
+                            if (pathClear) {
+                                const atk1 = this.isSquareAttacked(r, c + 1, piece.faction);
+                                const atk2 = this.isSquareAttacked(r, c + 2, piece.faction);
 
-                            if (!atk1 && !atk2) {
-                                moves.push({ r: r, c: c + 2, castling: 'kingside' });
+                                if (!atk1 && !atk2) {
+                                    moves.push({ r: r, c: c + 2, castling: 'kingside' });
+                                }
                             }
                         }
                     }
 
-                    // Check Queenside (Left)
-                    const leftRook = this.board[r][c - 4];
-                    if (leftRook && leftRook.type === 'r' && !leftRook.hasMoved) {
-                        const empty1 = !this.board[r][c - 1];
-                        const empty2 = !this.board[r][c - 2];
-                        const empty3 = !this.board[r][c - 3];
+                    // Queenside (Left) - Rook at column 0
+                    if (c - 4 >= 0) {
+                        const leftRook = this.board[r][0];
+                        if (leftRook && leftRook.type === 'r' && leftRook.faction === piece.faction && !leftRook.hasMoved) {
+                            // Check path between rook and king
+                            let pathClear = true;
+                            for (let col = 1; col < c; col++) {
+                                if (this.board[r][col]) {
+                                    pathClear = false;
+                                    break;
+                                }
+                            }
 
-                        if (empty1 && empty2 && empty3) {
-                            const atk1 = this.isSquareAttacked(r, c - 1, piece.faction);
-                            const atk2 = this.isSquareAttacked(r, c - 2, piece.faction);
+                            if (pathClear) {
+                                const atk1 = this.isSquareAttacked(r, c - 1, piece.faction);
+                                const atk2 = this.isSquareAttacked(r, c - 2, piece.faction);
 
-                            if (!atk1 && !atk2) {
-                                moves.push({ r: r, c: c - 2, castling: 'queenside' });
+                                if (!atk1 && !atk2) {
+                                    moves.push({ r: r, c: c - 2, castling: 'queenside' });
+                                }
                             }
                         }
                     }
@@ -656,29 +666,18 @@ class Game {
             // Determine side
             if (to.c > from.c) {
                 // Kingside (Right)
-                // Rook is at from.c + 3, moves to from.c + 1
-                // Wait, King moves +2. Rook moves to King's left (-1 from King's new pos)
-                // King: 4 -> 6. Rook: 7 -> 5.
-                const rookC = from.c + 3;
-                const rookTargetC = from.c + 1;
-                const rook = this.board[from.r][rookC];
-
-                // Move Rook
-                this.board[from.r][rookTargetC] = rook;
-                this.board[from.r][rookC] = null;
+                // Rook at column 7, moves to column 5
+                const rook = this.board[from.r][7];
+                this.board[from.r][5] = rook;
+                this.board[from.r][7] = null;
                 rook.hasMoved = true;
                 this.log(`${piece.faction} Castles Kingside`);
             } else {
                 // Queenside (Left)
-                // King: 4 -> 2. Rook: 0 -> 3.
-                // Rook is at from.c - 4, moves to from.c - 1
-                const rookC = from.c - 4;
-                const rookTargetC = from.c - 1;
-                const rook = this.board[from.r][rookC];
-
-                // Move Rook
-                this.board[from.r][rookTargetC] = rook;
-                this.board[from.r][rookC] = null;
+                // Rook at column 0, moves to column 3
+                const rook = this.board[from.r][0];
+                this.board[from.r][3] = rook;
+                this.board[from.r][0] = null;
                 rook.hasMoved = true;
                 this.log(`${piece.faction} Castles Queenside`);
             }
@@ -742,7 +741,7 @@ class Game {
         this.turnBadge.className = `badge ${classes[this.turnIndex]}`;
 
         if (this.waiting) {
-            this.turnBadge.textContent = "Waiting for Opponent...";
+            this.turnBadge.textContent = "Waiting for Ally...";
             this.turnBadge.className = "badge enemy";
         } else if (this.isMultiplayer) {
             const myFaction = this.myRole === 'A' ? FACTIONS.A : FACTIONS.B;
@@ -760,29 +759,30 @@ class Game {
     }
 
     checkGameEnd() {
-        let aKings = 0;
-        let bKings = 0;
+        let allyKings = 0;
         let enemyKings = 0;
 
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 const p = this.board[r][c];
                 if (p && p.type === 'k') {
-                    if (p.faction === FACTIONS.A) aKings++;
-                    else if (p.faction === FACTIONS.B) bKings++;
-                    else if (p.faction === FACTIONS.ENEMY) enemyKings++;
+                    if (p.faction === FACTIONS.A || p.faction === FACTIONS.B) {
+                        allyKings++;
+                    } else if (p.faction === FACTIONS.ENEMY) {
+                        enemyKings++;
+                    }
                 }
             }
         }
 
-        // Lose Condition: If ONE allied king is captured.
-        // We expect 1 A King and 1 B King.
-        if (aKings === 0 || bKings === 0) {
+        // Lose Condition: If the allied king is captured.
+        // Players A and B share one king (controlled by Player A on kingside)
+        if (allyKings === 0) {
             this.endGame(false);
             return true;
         }
 
-        // Win Condition: All Enemy Kings captured.
+        // Win Condition: Enemy king captured.
         if (enemyKings === 0) {
             this.endGame(true);
             return true;

@@ -20,7 +20,7 @@ class SimpleAI {
         const board = this.game.board;
 
         for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 16; c++) {
+            for (let c = 0; c < 8; c++) {
                 const piece = board[r][c];
                 if (!piece) continue;
 
@@ -156,7 +156,7 @@ class SimpleAI {
         const factions = side === 'Enemy' ? ['Enemy'] : ['A', 'B'];
 
         for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 16; c++) {
+            for (let c = 0; c < 8; c++) {
                 const piece = board[r][c];
                 if (piece && factions.includes(piece.faction)) {
                     const pieceMoves = this.game.getLegalMoves(r, c, piece);
