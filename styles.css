@@ -1,18 +1,25 @@
 :root {
-    --bg-color: #0f172a;
-    --board-border: #1e293b;
-    --square-dark: #334155;
-    --square-light: #94a3b8;
-    --highlight-move: rgba(255, 255, 0, 0.4);
-    --highlight-capture: rgba(255, 0, 0, 0.4);
-    --selected-color: rgba(255, 255, 255, 0.5);
+    --bg-color: #38342a;
+    /* Dark olive-brown background */
+    --board-border: #5a4d3c;
+    /* Medium neutral brown border */
+    --square-dark: #a89f8d;
+    /* Neutral tan for dark squares */
+    --square-light: #f5f0e8;
+    /* Warm cream for light squares */
+    --highlight-move: rgba(205, 180, 120, 0.5);
+    /* Neutral golden highlight */
+    --highlight-capture: rgba(150, 120, 80, 0.5);
+    /* Neutral brown highlight */
+    --selected-color: rgba(255, 248, 220, 0.6);
+    /* Cornsilk selection */
 
-    --color-player-a: #60a5fa;
-    /* Blue */
-    --color-player-b: #4ade80;
-    /* Green */
-    --color-enemy: #f87171;
-    /* Red */
+    --color-player-a: #5d4e3a;
+    /* Dark rich brown - high contrast */
+    --color-player-b: #d4af70;
+    /* Bright golden tan - high contrast */
+    --color-enemy: #7a7866;
+    /* Grayish olive brown - distinct middle tone */
 
     --font-main: 'Outfit', sans-serif;
 }
@@ -26,7 +33,8 @@
 body {
     font-family: var(--font-main);
     background-color: var(--bg-color);
-    color: white;
+    color: #f5e6d3;
+    /* Cream text instead of white */
     display: flex;
     justify-content: center;
     min-height: 100vh;
@@ -52,6 +60,7 @@ h1 {
     font-weight: 600;
     margin-bottom: 10px;
     background: linear-gradient(to right, var(--color-player-a), var(--color-player-b));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -1px;
@@ -77,21 +86,22 @@ h1 {
 
 .badge.player-a {
     background-color: var(--color-player-a);
-    color: #0f172a;
+    color: #f5f0e8;
 }
 
 .badge.player-b {
     background-color: var(--color-player-b);
-    color: #0f172a;
+    color: #38342a;
 }
 
 .badge.enemy {
     background-color: var(--color-enemy);
-    color: #0f172a;
+    color: #f5f0e8;
 }
 
 #message-log {
-    color: #cbd5e1;
+    color: #d4a574;
+    /* Golden brown */
     font-style: italic;
 }
 
@@ -137,12 +147,14 @@ h1 {
 /* Chess Board Pattern */
 .square.light {
     background-color: var(--square-light);
-    color: #1e293b;
+    color: #38342a;
+    /* Dark olive-brown text on cream squares */
 }
 
 .square.dark {
     background-color: var(--square-dark);
-    color: #94a3b8;
+    color: #f5f0e8;
+    /* Cream text on tan squares */
 }
 
 /* Highlights */
@@ -180,38 +192,40 @@ h1 {
 }
 
 .piece[data-faction="A"] {
-    color: #1d4ed8;
-    text-shadow: 0 0 2px white;
+    color: #3d2f1f;
+    /* Very dark brown - strong contrast */
+    text-shadow: 0 0 3px rgba(245, 240, 232, 0.9), 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-/* Darker blue for contrast on light squares */
 .piece[data-faction="B"] {
-    color: #15803d;
-    text-shadow: 0 0 2px white;
+    color: #c9a050;
+    /* Bright golden brown - strong contrast */
+    text-shadow: 0 0 3px rgba(61, 47, 31, 0.9), 0 0 1px rgba(0, 0, 0, 0.5);
 }
 
-/* Darker green */
 .piece[data-faction="Enemy"] {
-    color: #b91c1c;
-    text-shadow: 0 0 2px white;
+    color: #686556;
+    /* Medium grayish-olive - distinct from both */
+    text-shadow: 0 0 3px rgba(245, 240, 232, 0.9), 0 0 1px rgba(255, 255, 255, 0.5);
 }
-
-/* Darker red */
 
 /* Adjust text colors for dark squares to ensure visibility */
 .square.dark .piece[data-faction="A"] {
-    color: var(--color-player-a);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    color: #2a1f12;
+    /* Even darker brown for dark squares */
+    text-shadow: 0 0 4px rgba(245, 240, 232, 1), 0 0 2px rgba(255, 255, 255, 0.7);
 }
 
 .square.dark .piece[data-faction="B"] {
-    color: var(--color-player-b);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    color: #e6c070;
+    /* Lighter golden for dark squares */
+    text-shadow: 0 0 4px rgba(61, 47, 31, 1), 0 0 2px rgba(0, 0, 0, 0.7);
 }
 
 .square.dark .piece[data-faction="Enemy"] {
-    color: var(--color-enemy);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    color: #595344;
+    /* Darker grayish-olive for dark squares */
+    text-shadow: 0 0 4px rgba(245, 240, 232, 1), 0 0 2px rgba(255, 255, 255, 0.7);
 }
 
 .controls {
@@ -226,7 +240,8 @@ h1 {
     display: flex;
     gap: 20px;
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: #d4a574;
+    /* Golden brown */
 }
 
 .legend-item {
@@ -254,8 +269,9 @@ h1 {
 }
 
 .btn {
-    background-color: #3b82f6;
-    color: white;
+    background-color: #8b7d6b;
+    /* Neutral brown */
+    color: #f5f0e8;
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
@@ -266,7 +282,8 @@ h1 {
 }
 
 .btn:hover {
-    background-color: #2563eb;
+    background-color: #6d6153;
+    /* Darker neutral brown on hover */
 }
 
 .btn:active {
@@ -302,7 +319,8 @@ h1 {
 
 .modal-content h2 {
     margin-bottom: 20px;
-    color: white;
+    color: #f5e6d3;
+    /* Cream text */
 }
 
 .promotion-options {
@@ -314,7 +332,8 @@ h1 {
 .promo-btn {
     background: none;
     border: 2px solid var(--square-light);
-    color: white;
+    color: #f5e6d3;
+    /* Cream text */
     font-size: 3rem;
     width: 70px;
     height: 70px;
