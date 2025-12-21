@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CoChess - Cooperative Chess</title>
+    <title>2v1 Chess - Two Players vs One Enemy</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
 <body>
     <div class="game-container">
         <header>
-            <h1>CoChess</h1>
+            <h1>2v1 Chess</h1>
             <div class="status-bar">
                 <div id="turn-badge" class="badge player-a">Player A's Turn</div>
                 <div id="message-log">Welcome to CoChess!</div>
@@ -30,10 +30,11 @@
             </div>
 
             <div class="info-panel">
-                <h2>About CoChess</h2>
+                <h2>About 2v1 Chess</h2>
                 <div class="info-section">
-                    <h3>🎯 Objective</h3>
-                    <p>Two players cooperate to defeat the Enemy.</p>
+                    <h1 class="mode-title">2v1 Chess</h1>
+                    <p class="mode-subtitle">Two players team up to defeat the Enemy. Can you coordinate well enough to
+                        win?</p>
                     <p>Work together to checkmate the Enemy king!</p>
                 </div>
                 <div class="info-section">
@@ -73,6 +74,32 @@
             <button id="restart-btn" class="btn">New Game</button>
         </div>
     </div>
+
+    <div id="mode-selection-modal" class="modal">
+        <div class="modal-content mode-selection">
+            <h1 class="mode-title">CoChess</h1>
+            <p class="mode-subtitle">Cooperative Chess - Two players team up to defeat the Enemy</p>
+
+            <div class="mode-options">
+                <button id="solo-mode-btn" class="mode-btn solo-btn">
+                    <div class="mode-icon">🎮</div>
+                    <h3>1-Player Mode</h3>
+                    <p>Control both Player A & B<br>Perfect for trying the game!</p>
+                </button>
+
+                <button id="multiplayer-mode-btn" class="mode-btn multi-btn">
+                    <div class="mode-icon">👥</div>
+                    <h3>2-Player Mode</h3>
+                    <p>Each player controls one side<br>True cooperative gameplay</p>
+                </button>
+            </div>
+
+            <div class="mode-hint">
+                💡 Try 1-Player mode first to learn the game mechanics!
+            </div>
+        </div>
+    </div>
+
     <div id="promotion-modal" class="modal hidden">
         <div class="modal-content">
             <h2>Promote Pawn</h2>

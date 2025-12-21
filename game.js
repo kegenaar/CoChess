@@ -70,6 +70,10 @@ class Game {
             console.error('Arrow canvas element not found! Make sure the HTML has <canvas id="arrow-canvas"></canvas>');
         }
 
+        // Game Mode State
+        this.isSoloMode = false; // Solo mode: one player controls both A & B
+        this.gameStarted = false; // Track if mode has been selected
+
         // Multiplayer State
         this.socket = io();
         this.myRole = null; // 'A' or 'B'
@@ -81,6 +85,9 @@ class Game {
 
         // Initialize Simple AI
         this.ai = new SimpleAI(this);
+
+        // Setup Mode Selection
+        this.setupModeSelection();
 
         this.restartBtn.addEventListener('click', () => this.initGame());
 
@@ -127,14 +134,15 @@ class Game {
             }
         });
 
-        this.initGame();
+        // Don't initialize game yet - wait for mode selection
+        // this.initGame();
     }
 
     setupSocketListeners() {
+        // Only auto-join if we're in multiplayer mode
         this.socket.on('connect', () => {
             console.log('Connected to server');
-            this.log('Connected to server. Joining game...');
-            this.socket.emit('join_game');
+            // Don't auto-join - wait for user to select multiplayer mode
         });
 
         this.socket.on('waiting_for_opponent', () => {
@@ -163,6 +171,31 @@ class Game {
         this.socket.on('restart_game', () => {
             this.log('Game restarted by opponent.');
             this.initGame();
+        });
+    }
+
+    setupModeSelection() {
+        const modal = document.getElementById('mode-selection-modal');
+        const soloBtn = document.getElementById('solo-mode-btn');
+        const multiplayerBtn = document.getElementById('multiplayer-mode-btn');
+
+        soloBtn.addEventListener('click', () => {
+            this.isSoloMode = true;
+            this.isMultiplayer = false;
+            this.gameStarted = true;
+            modal.classList.add('hidden');
+            this.log('Solo Mode: Control both Player A and Player B!');
+            this.initGame();
+        });
+
+        multiplayerBtn.addEventListener('click', () => {
+            this.isSoloMode = false;
+            this.isMultiplayer = true; // Set this to true for multiplayer
+            this.gameStarted = true;
+            modal.classList.add('hidden');
+            this.log('Multiplayer Mode: Connecting...');
+            // Now emit join_game to start matchmaking
+            this.socket.emit('join_game');
         });
     }
 
@@ -541,6 +574,26 @@ class Game {
 
         const currentFaction = this.getCurrentFaction();
 
+        // Solo Mode: Can select both A and B pieces
+        if (this.isSoloMode) {
+            // Can select either A or B pieces on their respective turns
+            if (piece.faction === FACTIONS.A || piece.faction === FACTIONS.B) {
+                // On A's turn, select A pieces (or B if rescue needed)
+                // On B's turn, select B pieces (or A if rescue needed)
+                if (piece.faction === currentFaction) return true;
+
+                const allyFaction = this.getAllyFaction(currentFaction);
+                if (piece.faction === allyFaction) {
+                    if (this.isKingInCheck(allyFaction)) {
+                        if (!this.canRescueAlly(currentFaction, allyFaction)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         // Multiplayer Check: Can only select own pieces
         if (this.isMultiplayer) {
             const myFaction = this.myRole === 'A' ? FACTIONS.A : FACTIONS.B;
@@ -743,6 +796,11 @@ class Game {
         if (this.waiting) {
             this.turnBadge.textContent = "Waiting for Ally...";
             this.turnBadge.className = "badge enemy";
+        } else if (this.isSoloMode) {
+            // In solo mode, indicate it's the player's turn (except during enemy turns)
+            if (this.getCurrentFaction() !== FACTIONS.ENEMY) {
+                this.turnBadge.textContent += " (You control both!)";
+            }
         } else if (this.isMultiplayer) {
             const myFaction = this.myRole === 'A' ? FACTIONS.A : FACTIONS.B;
             if (this.getCurrentFaction() === myFaction) {
