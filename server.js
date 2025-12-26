@@ -9,6 +9,7 @@ app.use(express.static(path.join(__dirname, '.')));
 
 // Game state management
 let waitingPlayer = null;
+const playerRooms = new Map(); // Track which room each player is in
 
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
@@ -20,6 +21,10 @@ io.on('connection', (socket) => {
             const room = `game_${waitingPlayer.id}_${socket.id}`;
             socket.join(room);
             waitingPlayer.join(room);
+
+            // Track both players' rooms
+            playerRooms.set(socket.id, room);
+            playerRooms.set(waitingPlayer.id, room);
 
             // Assign roles
             io.to(waitingPlayer.id).emit('init_game', {
@@ -55,11 +60,19 @@ io.on('connection', (socket) => {
     // Handle disconnection
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
+
+        // If player was waiting, remove them from queue
         if (waitingPlayer === socket) {
             waitingPlayer = null;
         }
-        // Ideally, we should notify the ally in the room that the player left
-        // For simplicity, we'll leave it as is for now, or maybe emit 'ally_disconnected'
+
+        // If player was in an active game, notify their opponent
+        const room = playerRooms.get(socket.id);
+        if (room) {
+            console.log(`Notifying room ${room} that player ${socket.id} disconnected`);
+            socket.to(room).emit('opponent_disconnected');
+            playerRooms.delete(socket.id);
+        }
     });
 });
 

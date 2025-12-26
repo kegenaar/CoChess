@@ -123,7 +123,7 @@ h1 {
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    max-width: 600px;
+    max-width: 1000px;
     position: relative;
 }
 
@@ -144,7 +144,7 @@ h1 {
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     width: 100%;
-    max-width: 600px;
+    max-width: 1000px;
     aspect-ratio: 1 / 1;
     border: 2px solid var(--board-border);
 }
@@ -153,7 +153,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     cursor: pointer;
     position: relative;
     user-select: none;
@@ -628,7 +628,7 @@ h1 {
 
     .info-panel {
         grid-column: 1;
-        max-width: 600px;
+        max-width: 1000px;
         width: 100%;
     }
 }

@@ -89,7 +89,7 @@ class Game {
         // Setup Mode Selection
         this.setupModeSelection();
 
-        this.restartBtn.addEventListener('click', () => this.initGame());
+        this.restartBtn.addEventListener('click', () => this.restartGame());
 
         // Prevent context menu on the board globally
         this.boardElement.addEventListener('contextmenu', (e) => {
@@ -156,6 +156,7 @@ class Game {
             this.myRole = data.role;
             this.room = data.room;
             this.isMultiplayer = true;
+            this.opponentConnected = true; // Track opponent connection status
             this.log(`Game Started! You are Player ${this.myRole}`);
             this.updateStatus();
 
@@ -171,6 +172,32 @@ class Game {
         this.socket.on('restart_game', () => {
             this.log('Game restarted by opponent.');
             this.initGame();
+        });
+
+        this.socket.on('opponent_disconnected', () => {
+            console.log('Opponent disconnected');
+            this.opponentConnected = false;
+            this.log('⚠️ Your ally has disconnected from the game!');
+
+            // Show a more prominent warning
+            const messageLog = document.getElementById('message-log');
+            if (messageLog) {
+                messageLog.style.color = '#ff6b6b';
+                messageLog.style.fontWeight = 'bold';
+                messageLog.style.fontSize = '1.3rem';
+            }
+
+            // Update turn badge to show disconnection
+            if (this.turnBadge) {
+                this.turnBadge.textContent = 'Ally Disconnected';
+                this.turnBadge.className = 'badge enemy';
+                this.turnBadge.style.backgroundColor = '#ff6b6b';
+            }
+
+            // Clear any selected pieces
+            this.selectedSquare = null;
+            this.legalMoves = [];
+            this.render();
         });
     }
 
@@ -223,6 +250,43 @@ class Game {
         this.render();
         this.drawArrows();
     }
+
+    restartGame() {
+        // Reset all game mode flags
+        this.isSoloMode = false;
+        this.isMultiplayer = false;
+        this.gameStarted = false;
+        this.waiting = false;
+        this.myRole = null;
+        this.room = null;
+        this.opponentConnected = undefined;
+
+        // Reset message log styling
+        const messageLog = document.getElementById('message-log');
+        if (messageLog) {
+            messageLog.style.color = '';
+            messageLog.style.fontWeight = '';
+            messageLog.style.fontSize = '';
+        }
+
+        // Reset turn badge styling
+        if (this.turnBadge) {
+            this.turnBadge.style.backgroundColor = '';
+        }
+
+        // Show mode selection modal
+        const modal = document.getElementById('mode-selection-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+
+        // Clear the board
+        this.boardElement.innerHTML = '';
+        this.arrows = [];
+        this.drawArrows();
+        this.log('Select a game mode to start');
+    }
+
 
     createBoard() {
         this.board = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
@@ -596,6 +660,9 @@ class Game {
 
         // Multiplayer Check: Can only select own pieces
         if (this.isMultiplayer) {
+            // Can't move if opponent has disconnected
+            if (this.opponentConnected === false) return false;
+
             const myFaction = this.myRole === 'A' ? FACTIONS.A : FACTIONS.B;
             if (piece.faction !== myFaction) return false;
 
